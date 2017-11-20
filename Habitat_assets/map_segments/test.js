@@ -1,3 +1,13 @@
+(function(name,data){
+ if(typeof onTileMapLoaded === 'undefined') {
+  if(typeof TileMaps === 'undefined') TileMaps = {};
+  TileMaps[name] = data;
+ } else {
+  onTileMapLoaded(name,data);
+ }
+ if(typeof module === 'object' && module && module.exports) {
+  module.exports = data;
+ }})("test",
 { "height":100,
  "infinite":true,
  "layers":[
@@ -164,4 +174,4 @@
  "type":"map",
  "version":1,
  "width":100
-}
+});

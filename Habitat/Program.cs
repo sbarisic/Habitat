@@ -52,6 +52,8 @@ namespace Habitat {
 		}
 
 		static void Run() {
+			//MapSegment M = JsonLoader.Deserialize<MapSegment>(File.ReadAllText("habitat\\map_segments\\test.json"));
+			
 			VideoMode Desktop = VideoMode.DesktopMode;
 			Game = new HabitatGame((int)(Desktop.Width * 0.9), (int)(Desktop.Height * 0.9));
 			Game.Run();
@@ -70,36 +72,10 @@ namespace Habitat {
 			Scene MainScene = new Scene();
 			MainScene.Add(new World());
 			Game.AddScene(MainScene);
-
-
 		}
 
 		public void Run() {
 			Game.Start();
-		}
-	}
-
-	struct map {
-		public int version;
-	}
-
-	class World : Entity {
-		public Tilemap Tilemap;
-		public static int GridSize = 32;
-		public int CurrentTile;
-
-		public World() {
-			Tilemap = new Tilemap("habitat\\textures\\blocks1.png", 128 * GridSize, GridSize);
-			AddGraphic(Tilemap);
-
-			string WorldJson = File.ReadAllText("habitat\\map_segments\\test.json");
-
-			map M = JsonLoader.Deserialize<map>(WorldJson);
-
-			//Dictionary<string, object> Map = (Dictionary<string, object>)JsonLoader.Deserialize(File.ReadAllText("habitat\\map_segments\\test.json"));
-			//object[] Tilesets = Map.Value<object[]>("tilesets");
-
-			Tilemap.SetTile(0, 0, 0);
 		}
 	}
 }
