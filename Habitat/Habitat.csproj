@@ -92,8 +92,13 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="TiledSharp, Version=0.15.5889.20321, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\TiledSharp.0.15\lib\TiledSharp.dll</HintPath>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Ents\WorldEntity.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="JsonLoader.cs" />
     <Compile Include="Program.cs" />
@@ -101,11 +106,12 @@
     <Compile Include="World.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Habitat_assets\map_segments\test.json">
-      <Link>habitat\map_segments\test.json</Link>
+    <None Include="..\Habitat_assets\map_segments\test.tmx">
+      <Link>habitat\map_segments\test.tmx</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\Habitat_assets\textures\floor\iron1.png">
@@ -164,6 +170,17 @@
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="..\Habitat_assets\textures\tileset.tsx">
+      <Link>habitat\textures\tileset.tsx</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Habitat_assets\textures\entityset.tsx">
+      <Link>habitat\textures\entityset.tsx</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

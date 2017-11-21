@@ -1,117 +1,122 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Otter;
 using System.IO;
+using TiledSharp;
+using Habitat.Ents;
 
 namespace Habitat {
-	public enum MapSegmentType {
-		main
+	public enum MapLayers : int {
+		Walls = 1,
+		Floors = 2,
+		Zones = 3,
+		Entities = 4,
 	}
 
-	public enum MapLayer {
-		Region = -1,
-		Floor = 1,
-		Wall = 2,
-	}
+	class MapChunk : Entity {
+		public Tilemap Tilemap;
+		public int TileSize = 32;
 
-	struct MapSegment {
-		public struct tileset_entry {
-			public int firstgid;
-			public string source;
+		public List<WorldEntity> WorldEntities;
+
+		static MapLayers ParseLayer(string Name) {
+			return (MapLayers)Enum.Parse(typeof(MapLayers), Name, true);
 		}
 
-		public struct layer {
-			public struct chunk {
-				public int[] data;
-				public int width;
-				public int height;
-				public int x;
-				public int y;
-			}
+		WorldEntity CreateWorldEntity(TmxMap Map, TmxObject Obj) {
+			if (Obj.ObjectType == TmxObjectType.Tile) {
+				foreach (var Tileset in Map.Tilesets) {
+					if (Obj.Tile.Gid >= Tileset.FirstGid && Obj.Tile.Gid < (Tileset.FirstGid + Tileset.TileCount)) {
+						TmxTilesetTile T = Tileset.Tiles.Where((Tl) => Tl.Id == Obj.Tile.Gid - Tileset.FirstGid).First();
 
-			public chunk[] chunks;
-			public int startx;
-			public int starty;
-			public string type;
-			public string name;
+						WorldEntity WEnt = new WorldEntity();
+						WEnt.SetPosition((float)Obj.X, (float)Obj.Y);
+						WEnt.Width = (float)Obj.Width;
+						WEnt.Height = (float)Obj.Height;
 
-			public MapLayer LayerName {
-				get {
-					return (MapLayer)Enum.Parse(typeof(MapLayer), name);
-				}
-			}
-		}
+						foreach (var P in T.Properties)
+							if (P.Key == "EntityName")
+								WEnt.EntityName = P.Value;
+							else if (P.Key == "EntityID") {
+							} else
+								WEnt.SetProperty(P.Key, P.Value);
 
-		public Dictionary<string, string> properties;
-		public Dictionary<string, string> propertytypes;
-		public tileset_entry[] tilesets;
-		public layer[] layers;
-		public int nextobjectid;
 
-		public object GetProperty(string Name) {
-			if (properties.ContainsKey(Name)) {
-				if (propertytypes[Name] == "string")
-					return properties[Name];
+						foreach (var P in Obj.Properties) {
+							if (P.Key == "EntityID")
+								WEnt.EntityID = P.Value;
+							else
+								WEnt.SetProperty(P.Key, P.Value);
+						}
 
-				throw new Exception("Unknown property type " + propertytypes[Name]);
-			}
-
-			throw new Exception("Property not found " + Name);
-		}
-
-		public MapSegmentType SegmentType {
-			get {
-				return (MapSegmentType)Enum.Parse(typeof(MapSegmentType), (string)GetProperty("segment_type"));
-			}
-		}
-
-		public void PopulateTilemap(Tilemap TMap) {
-			foreach (var L in layers) {
-				if ((int)L.LayerName < 0)
-					continue;
-
-				TMap.AddLayer(L.LayerName, (int)L.LayerName);
-
-				foreach (var C in L.chunks) {
-					for (int i = 0; i < C.data.Length; i++) {
-						int X = (i % C.width) + C.x;
-						int Y = (i / C.height) + C.y;
-
-						TMap.SetTile(X + 16, Y + 16, C.data[i], L.LayerName);
+						if (WEnt.EntityName == null)
+							throw new Exception(string.Format("Invalid ent name for tile ID {0} in tileset {1}", Obj.Tile.Gid, Tileset.Name));
+						return WEnt;
 					}
 				}
 			}
+
+			throw new Exception("Invalid world entity");
 		}
-	}
 
-	class World : Entity {
-		public MapSegment MapSeg;
-		public Tilemap Tilemap;
-		public static int GridSize = 32;
-
-		public World() {
+		public MapChunk() {
 			//string WorldJson = File.ReadAllText("habitat\\map_segments\\test.json");
 			//MapSeg = JsonLoader.Deserialize<MapSegment>(WorldJson);
 
-			Tilemap = new Tilemap("habitat\\textures\\tileset.png", 32 * GridSize, GridSize);
+
+			TmxMap Map = new TmxMap("habitat\\map_segments\\test.tmx");
+			int FirstID = Map.Tilesets[0].FirstGid;
+
+			if (Map.TileWidth != Map.TileHeight)
+				throw new Exception("Unsupported non-rectangular tiles");
+			TileSize = Map.TileWidth;
+
+			Tilemap = new Tilemap(Map.Tilesets[0].Image.Source, Map.Width * TileSize, Map.Height * TileSize, TileSize, TileSize);
 			Tilemap.Smooth = true;
-
-			Tilemap.SetLayer(0);
-
-			//Enum.GetValues(typeof(MapLayer));
-
-
+			foreach (var L in Enum.GetValues(typeof(MapLayers)))
+				Tilemap.AddLayer((Enum)L, (int)L);
 			AddGraphic(Tilemap);
 
-			//MapSeg.PopulateTilemap(Tilemap);
+			foreach (var L in Map.Layers) {
+				foreach (var T in L.Tiles) {
+					int ID = T.Gid - FirstID;
+					if (ID < 0)
+						continue;
 
-			//Dictionary<string, object> Map = (Dictionary<string, object>)JsonLoader.Deserialize(File.ReadAllText("habitat\\map_segments\\test.json"));
-			//object[] Tilesets = Map.Value<object[]>("tilesets");
+					TileInfo TInf = Tilemap.SetTile(T.X, T.Y, ID, ParseLayer(L.Name));
+					TInf.FlipX = T.HorizontalFlip;
+					TInf.FlipY = T.VerticalFlip;
+					TInf.FlipD = T.DiagonalFlip;
+				}
+			}
 
-			//Tilemap.SetTile(0, 0, 0);
+			WorldEntities = new List<WorldEntity>();
+			foreach (var OG in Map.ObjectGroups)
+				if (ParseLayer(OG.Name) == MapLayers.Entities) {
+					foreach (var O in OG.Objects)
+						WorldEntities.Add(CreateWorldEntity(Map, O));
+				}
+
+			/*foreach (var O in Map.ObjectGroups) {
+				MapLayers L = ParseLayer(O.Name);
+
+				if (L == MapLayers.Zones) {
+					foreach (var Obj in O.Objects) {
+						if (Obj.ObjectType == TmxObjectType.Polygon) {
+							Vert[] Verts = Obj.Points.Select((P) => new Vert((float)Obj.X + (float)P.X, (float)Obj.Y + (float)P.Y)).ToArray();
+
+							Vertices V = new Vertices(Verts);
+							V.PrimitiveType = VertexPrimitiveType.LinesStrip;
+							V.Color = Color.White;
+							AddGraphic(V);
+						}
+					}
+				}
+			}*/
 		}
 	}
 }
