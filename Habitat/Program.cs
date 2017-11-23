@@ -91,7 +91,7 @@ namespace Habitat {
 			Game.AddScene(GameWorld);
 		}
 
-		[OtterCommand(HelpText = "Find entities by EntityName")]
+		[OtterCommand(HelpText = "Find entities by EntityName, * for all")]
 		static void GetEntities(string EntityName) {
 			WorldEntity[] WorldEnts = Program.Game.GameWorld.GetEntities<WorldEntity>().ToArray();
 
