@@ -40,6 +40,7 @@ namespace Habitat.MapEditor
         static void Main(string[] args)
         {
             var window = new RenderWindow(new VideoMode(1024, 768), "Poo", Styles.Default);
+            window.SetFramerateLimit(100);
 
             #region event setup
             window.Closed += (s, e) => window.Close();
