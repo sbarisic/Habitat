@@ -3,7 +3,7 @@ using SFML.System;
 using SFML.Window;
 using System;
 
-namespace HabitatMapEditor
+namespace Habitat.MapEditor
 {
     class Program
     {
