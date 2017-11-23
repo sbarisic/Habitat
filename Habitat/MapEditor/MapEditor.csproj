@@ -71,4 +71,7 @@
     </PropertyGroup>
     <Error Condition="!Exists('packages\Graphnode.SFML.Net.2.4\build\Graphnode.SFML.Net.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\Graphnode.SFML.Net.2.4\build\Graphnode.SFML.Net.targets'))" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>cp "$(SolutionDir)\floors.png" "$(SolutionDir)\bin\floors.png"</PostBuildEvent>
+  </PropertyGroup>
 </Project>
