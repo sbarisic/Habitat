@@ -46,8 +46,8 @@ namespace Habitat.MapEditor
             window.Closed += (s, e) => window.Close();
             window.Resized += (s, e) =>
             {
-                var newSize = new Vector2f(e.Width, e.Height);
-                window.SetView(new View(newSize / 2, newSize));
+                var view = window.GetView();
+                window.SetView(new View(view.Center, new Vector2f(e.Width, e.Height)));
             };
             window.MouseWheelScrolled += (s, e) =>
             {
