@@ -44,14 +44,19 @@ namespace Habitat.MapEditor
 
             #region event setup
             window.Closed += (s, e) => window.Close();
-            window.MouseWheelScrolled += (object s, MouseWheelScrollEventArgs e) =>
+            window.Resized += (s, e) =>
+            {
+                var newSize = new Vector2f(e.Width, e.Height);
+                window.SetView(new View(newSize / 2, newSize));
+            };
+            window.MouseWheelScrolled += (s, e) =>
             {
                 if (e.Delta.Equals(1))
                     ZoomAtPosition(new Vector2i(e.X, e.Y), window, 1 / zoomAmount);
                 else if (e.Delta.Equals(-1))
                     ZoomAtPosition(new Vector2i(e.X, e.Y), window, zoomAmount);
             };
-            window.MouseButtonPressed += (object s, MouseButtonEventArgs e) =>
+            window.MouseButtonPressed += (s, e) =>
             {
                 if (e.Button == Mouse.Button.Middle)
                 {
@@ -59,14 +64,14 @@ namespace Habitat.MapEditor
                     middleMouseDown = true;
                 }
             };
-            window.MouseButtonReleased += (object s, MouseButtonEventArgs e) =>
+            window.MouseButtonReleased += (s, e) =>
             {
                 if (e.Button == Mouse.Button.Middle)
                 {
                     middleMouseDown = false;
                 }
             };
-            window.MouseMoved += (object s, MouseMoveEventArgs e) =>
+            window.MouseMoved += (s, e) =>
             {
                 if (middleMouseDown)
                     PanView(window, new Vector2i(e.X, e.Y));
