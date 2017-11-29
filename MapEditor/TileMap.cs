@@ -13,81 +13,27 @@ namespace Habitat.MapEditor
             {
                 public class Layer
                 {
-                    public uint SpriteSheetIndex
-                    {
-                        get;
-                        internal set;
-                    }
-
-                    public uint SpriteIndex
-                    {
-                        get;
-                        internal set;
-                    }
+                    public uint SpriteSheetIndex { get; internal set; }
+                    public uint SpriteIndex { get; internal set; }
                 }
 
-                public List<Layer> Layers
-                {
-                    get;
-                    internal set;
-                }
-
-                public Tile()
-                {
-                    Layers = new List<Layer>();
-                }
+                public List<Layer> Layers { get; internal set; } = new List<Layer>();
             }
 
-            public List<Tile> Tiles
-            {
-                get;
-                internal set;
-            }
-
-            public Level()
-            {
-                Tiles = new List<Tile>();
-            }
+            public List<Tile> Tiles { get; internal set; } = new List<Tile>();
         }
 
-        public List<Level> Levels
-        {
-            get;
-            internal set;
-        }
+        public List<Level> Levels { get; internal set; } = new List<Level>();
 
         public const uint SpriteSize = 32;
-        public static Vector2u MapSize
-        {
-            get;
-            internal set;
-        }
+        public static Vector2u MapSize { get; internal set; } = new Vector2u(0, 0);
 
         public class TextureMeta
         {
-            public uint Columns
-            {
-                get;
-                internal set;
-            }
-
-            public uint Rows
-            {
-                get;
-                internal set;
-            }
-
-            public Texture Texture
-            {
-                get;
-                internal set;
-            }
-
-            public RenderStates RenderStates
-            {
-                get;
-                internal set;
-            }
+            public uint Columns { get; internal set; }
+            public uint Rows { get; internal set; }
+            public Texture Texture { get; internal set; }
+            public RenderStates RenderStates { get; internal set; }
 
             public TextureMeta(string filename)
             {
@@ -148,19 +94,9 @@ namespace Habitat.MapEditor
             }
         }
 
-        public List<TextureMeta> Textures
-        {
-            get;
-            internal set;
-        }
+        public List<TextureMeta> Textures { get; internal set; } = new List<TextureMeta>();
 
         private Dictionary<uint, VertexArray> textureDictionary = new Dictionary<uint, VertexArray>();
-
-        public TileMap()
-        {
-            Levels = new List<Level>();
-            Textures = new List<TextureMeta>();
-        }
 
         public void Rebuild()
         {
